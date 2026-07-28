@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Find Your Light - لعبة تفاعلية قصيرة عن الأمل والدعم" />
+    <meta name="theme-color" content="#0A0A1A" />
+    <meta name="author" content="Mahdi Ahmed" />
+
+    <title>Find Your Light</title>
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <div id="app">
+
+        <!-- ====== START SCREEN ====== -->
+        <div id="screen-start" class="screen active">
+            <div class="bg-stars" id="bg-stars"></div>
+            <div class="start-content">
+                <h1>✨ Find Your Light ✨</h1>
+                <p class="typing-text" id="intro-text"></p>
+                <button class="btn-start" id="btn-start">ابدأ الرحلة</button>
+                <p class="hint">🖱️ حرك الماوس أو اسحب بإصبعك</p>
+            </div>
+        </div>
+
+        <!-- ====== GAME SCREEN ====== -->
+        <div id="screen-game" class="screen">
+            <canvas id="gameCanvas"></canvas>
+            
+            <!-- HUD -->
+            <div class="hud">
+                <span class="counter" id="star-counter">⭐ 0 / 5</span>
+                <div class="progress">
+                    <div class="fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- رسائل -->
+            <div class="message-box" id="message-box"></div>
+            <div class="floating-text" id="floating-text"></div>
+
+            <!-- 🕹️ عصا التحكم (Joystick) -->
+            <div class="joystick-area" id="joystick-area">
+                <div class="joystick-base" id="joystick-base">
+                    <div class="joystick-thumb" id="joystick-thumb"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== END SCREEN ====== -->
+        <div id="screen-end" class="screen">
+            <div class="end-content">
+                <!-- بابين جنب بعض -->
+                <div class="doors-container">
+                    <div class="door-card" id="door-her">
+                        <div class="door-icon">💌</div>
+                        <h3>رسالتها</h3>
+                        <p>اضغط لقراءة الرسالة</p>
+                    </div>
+                    <div class="door-card" id="door-his">
+                        <div class="door-icon">💙</div>
+                        <h3>رسالتك</h3>
+                        <p>اضغط لقراءة الرسالة</p>
+                    </div>
+                </div>
+
+                <!-- الرسالة (تظهر بعد الضغط) -->
+                <div class="letter-box" id="letter-box" style="display:none;">
+                    <div class="letter-content" id="letter-text"></div>
+                    <button class="btn-close-letter" id="btn-close-letter">✕</button>
+                </div>
+
+                <!-- العداد -->
+                <div class="counter-box">
+                    <div style="font-size:0.9rem;color:#888;">منذ 08 / 05 / 2026</div>
+                    <div class="nums" id="counter-nums">
+                        <div class="item"><span class="num" id="days">0</span><span class="label">يوم</span></div>
+                        <div class="item"><span class="num" id="hours">0</span><span class="label">ساعة</span></div>
+                        <div class="item"><span class="num" id="minutes">0</span><span class="label">دقيقة</span></div>
+                        <div class="item"><span class="num" id="seconds">0</span><span class="label">ثانية</span></div>
+                    </div>
+                    <div style="font-size:0.8rem;color:#555;margin-top:4px;">✨ وكل ثانية... قصة جديدة.</div>
+                </div>
+
+                <div class="final-stars" id="final-stars"></div>
+                <p class="made-by">Made with ❤️ by Mahdi Ahmed</p>
+                <button class="btn-replay" id="btn-replay">🔄 العب مرة أخرى</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
