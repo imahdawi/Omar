@@ -95,7 +95,7 @@ body {
     margin-bottom: 8px;
 }
 
-.start-content .sub {
+.start-content {
     font-size: 1.1rem;
     color: #666;
     margin-bottom: 20px;
@@ -154,6 +154,131 @@ body {
 }
 
 /* ================================================================
+   🔐 CODE SCREEN
+   ================================================================ */
+
+#screen-code {
+    background: radial-gradient(ellipse at center, #0A0A1A 0%, #000000 100%);
+}
+
+.code-content {
+    max-width: 400px;
+    width: 100%;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.code-lock {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.code-content h2 {
+    font-size: 1.6rem;
+    color: #E0E0E0;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.code-hint {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 24px;
+}
+
+.code-display {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 30px;
+    direction: ltr;
+}
+
+.code-digit {
+    width: 44px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #6C63FF;
+    background: rgba(255,255,255,0.03);
+    border: 2px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.code-digit.active {
+    border-color: #6C63FF;
+    box-shadow: 0 0 30px rgba(108, 99, 255, 0.15);
+}
+
+.code-digit.filled {
+    border-color: rgba(255,215,0,0.3);
+    color: #FFD700;
+}
+
+.code-keypad {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.keypad-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.key-btn {
+    width: 70px;
+    height: 60px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.03);
+    color: #E0E0E0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    transition: all 0.15s ease;
+}
+
+.key-btn:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+}
+
+.key-btn:active {
+    transform: scale(0.92);
+    background: rgba(108, 99, 255, 0.15);
+}
+
+.key-clear {
+    color: #FF6B6B;
+}
+
+.key-enter {
+    color: #6C63FF;
+    background: rgba(108, 99, 255, 0.08);
+}
+
+.key-enter:hover {
+    background: rgba(108, 99, 255, 0.15);
+}
+
+.code-error {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: #FF6B6B;
+    min-height: 24px;
+}
+
+/* ================================================================
    🎮 GAME SCREEN
    ================================================================ */
 
@@ -169,7 +294,6 @@ body {
     cursor: none;
 }
 
-/* ====== HUD ====== */
 .hud {
     position: absolute;
     top: 0;
@@ -206,7 +330,6 @@ body {
     transition: width 0.5s ease;
 }
 
-/* ====== MESSAGES ====== */
 .message-box {
     position: absolute;
     bottom: 50px;
@@ -249,7 +372,6 @@ body {
     transition: all 1s ease;
 }
 
-/* ====== 🕹️ JOYSTICK ====== */
 .joystick-area {
     position: absolute;
     bottom: 120px;
@@ -289,7 +411,6 @@ body {
     pointer-events: none;
 }
 
-/* إخفاء الجويستيك على الكمبيوتر */
 @media (min-width: 768px) {
     .joystick-area {
         display: none;
@@ -318,7 +439,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ====== بابين جنب بعض ====== */
 .doors-container {
     display: flex;
     gap: 20px;
@@ -366,7 +486,6 @@ body {
     margin-top: 4px;
 }
 
-/* باب رسالتها لون وردي */
 #door-her {
     border-color: rgba(255, 182, 193, 0.15);
 }
@@ -377,7 +496,6 @@ body {
     color: #FFB6C1;
 }
 
-/* باب رسالتك لون بنفسجي */
 #door-his {
     border-color: rgba(108, 99, 255, 0.15);
 }
@@ -388,7 +506,6 @@ body {
     color: #6C63FF;
 }
 
-/* ====== LETTER BOX ====== */
 .letter-box {
     background: rgba(0,0,0,0.9);
     border: 1px solid rgba(255,255,255,0.06);
@@ -436,7 +553,132 @@ body {
     transform: rotate(90deg);
 }
 
-/* ====== COUNTERS ====== */
+/* ================================================================
+   🎬 MEDIA SECTION
+   ================================================================ */
+
+.media-section {
+    margin: 16px 0;
+    padding: 16px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.04);
+    animation: fadeIn 0.5s ease;
+}
+
+.media-title {
+    font-size: 1.3rem;
+    color: #E0E0E0;
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.media-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.04);
+    position: relative;
+}
+
+.media-item:hover {
+    transform: scale(1.03);
+    border-color: rgba(255,215,0,0.3);
+}
+
+.media-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.media-item span {
+    font-size: 0.7rem;
+    color: #999;
+    padding: 4px 0;
+    position: absolute;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    width: 100%;
+    text-align: center;
+}
+
+.video-item {
+    background: rgba(108, 99, 255, 0.08);
+    border-color: rgba(108, 99, 255, 0.15);
+}
+
+.video-thumb {
+    font-size: 3rem;
+    color: #6C63FF;
+    margin-bottom: 4px;
+}
+
+.media-viewer {
+    margin: 16px 0;
+    padding: 16px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.06);
+    animation: fadeIn 0.3s ease;
+}
+
+.viewer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.viewer-content img,
+.viewer-content video {
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 10px;
+}
+
+.viewer-content video {
+    width: 100%;
+}
+
+.btn-back {
+    background: none;
+    border: none;
+    color: #6C63FF;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    color: #FFD700;
+    transform: translateX(4px);
+}
+
+/* ================================================================
+   📊 COUNTERS
+   ================================================================ */
+
 .counter-box {
     margin: 10px 0;
     padding: 14px 16px;
@@ -480,7 +722,6 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* ألوان مختلفة لكل عداد */
 #counter-nums-her .num {
     color: #FFB6C1;
 }
@@ -495,7 +736,6 @@ body {
     color: #555577;
 }
 
-/* ====== FINAL ====== */
 .made-by {
     margin-top: 10px;
     font-size: 0.8rem;
@@ -538,6 +778,21 @@ body {
     .letter-box { padding: 20px 16px; }
     .letter-box .letter-content { font-size: 0.95rem; line-height: 1.7rem; }
     
+    .media-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .media-item {
+        aspect-ratio: 4 / 3;
+    }
+    .media-title {
+        font-size: 1.1rem;
+    }
+    .viewer-content img,
+    .viewer-content video {
+        max-height: 50vh;
+    }
+    
     .counter-box .nums .item .num { font-size: 1.3rem; min-width: 28px; }
     .counter-box .nums { gap: 8px; }
     
@@ -547,12 +802,34 @@ body {
     .joystick-area { bottom: 100px; }
     .joystick-base { width: 80px; height: 80px; }
     .joystick-thumb { width: 36px; height: 36px; }
+    
+    .code-digit {
+        width: 36px;
+        height: 46px;
+        font-size: 1.6rem;
+        gap: 8px;
+    }
+    .key-btn {
+        width: 56px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+    .code-content h2 {
+        font-size: 1.3rem;
+    }
 }
 
 @media (max-width: 400px) {
     .door-card { padding: 14px 14px; min-width: 80px; }
     .door-card .door-icon { font-size: 1.8rem; }
     .door-card h3 { font-size: 0.8rem; }
+    
+    .media-grid {
+        gap: 6px;
+    }
+    .media-item span {
+        font-size: 0.6rem;
+    }
     
     .counter-box .nums .item .num { font-size: 1rem; min-width: 20px; }
     .counter-box .nums .item .label { font-size: 0.5rem; }
@@ -561,4 +838,36 @@ body {
     .joystick-area { bottom: 80px; }
     .joystick-base { width: 70px; height: 70px; }
     .joystick-thumb { width: 30px; height: 30px; }
+    
+    .code-digit {
+        width: 30px;
+        height: 38px;
+        font-size: 1.3rem;
+        gap: 4px;
+    }
+    .key-btn {
+        width: 46px;
+        height: 42px;
+        font-size: 1rem;
+    }
+    .code-display {
+        gap: 6px;
+    }
+    .code-keypad {
+        gap: 6px;
+    }
+    .keypad-row {
+        gap: 6px;
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
 }

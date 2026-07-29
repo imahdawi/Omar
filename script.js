@@ -5,6 +5,7 @@
 // ====== DOM REFS ======
 const screens = {
     start: document.getElementById('screen-start'),
+    code: document.getElementById('screen-code'),
     game: document.getElementById('screen-game'),
     end: document.getElementById('screen-end')
 };
@@ -26,6 +27,13 @@ const btnCloseLetter = document.getElementById('btn-close-letter');
 const joystickBase = document.getElementById('joystick-base');
 const joystickThumb = document.getElementById('joystick-thumb');
 
+// ====== CODE SCREEN ======
+const codeDisplay = document.getElementById('code-display');
+const codeError = document.getElementById('code-error');
+const keyBtns = document.querySelectorAll('.key-btn');
+const keyClear = document.getElementById('key-clear');
+const keyEnter = document.getElementById('key-enter');
+
 // ====== COUNTERS ======
 const daysHer = document.getElementById('days-her');
 const hoursHer = document.getElementById('hours-her');
@@ -43,9 +51,13 @@ const state = {
     totalStars: 5,
     gamePhase: 'collect',
     dateHer: new Date(2026, 4, 8, 0, 0, 0),
-    dateHis: new Date(2020, 4, 18, 0, 0, 0),
+    dateHis: new Date(2020, 7, 15, 0, 0, 0), // ✅ 15/8/2020
     isEnding: false,
-    collectedWords: []
+    collectedWords: [],
+    code: '',
+    maxCodeLength: 7,
+    correctCode: '2020158',
+    codeUnlocked: false
 };
 
 // ====== STAR DATA ======
@@ -76,6 +88,110 @@ let joystickActive = false;
 let joystickX = 0;
 let joystickY = 0;
 let counterInterval = null;
+
+// ====== AUDIO ======
+let bgAudio = null;
+
+// ================================================================
+//  🎵 AUDIO
+// ================================================================
+
+function setupAudio() {
+    bgAudio = document.getElementById('bg-audio');
+    if (bgAudio) {
+        bgAudio.loop = true;
+        bgAudio.volume = 0.3;
+    }
+}
+
+function playBackgroundMusic() {
+    const audio = document.getElementById('bg-audio');
+    if (audio) {
+        audio.src = 'assets/audio/song.mp3';
+        audio.loop = true;
+        audio.volume = 0.3;
+        audio.play().catch(e => console.log('🎵 Audio play failed:', e));
+    }
+}
+
+function stopBackgroundMusic() {
+    if (bgAudio) {
+        bgAudio.pause();
+        bgAudio.currentTime = 0;
+    }
+}
+
+// ================================================================
+//  🔐 CODE SCREEN
+// ================================================================
+
+function updateCodeDisplay() {
+    const digits = document.querySelectorAll('.code-digit');
+    const displayCode = state.code.padEnd(state.maxCodeLength, '_');
+    const chars = displayCode.split('');
+    
+    for (let i = 0; i < digits.length; i++) {
+        const char = chars[i] || '_';
+        digits[i].textContent = char;
+        digits[i].className = 'code-digit';
+        if (char !== '_') {
+            digits[i].classList.add('filled');
+        }
+        if (i === state.code.length) {
+            digits[i].classList.add('active');
+        }
+    }
+}
+
+
+
+function handleCodeInput(num) {
+    if (state.code.length < state.maxCodeLength) {
+        state.code += num;
+        updateCodeDisplay();
+        codeError.textContent = '';
+    }
+}
+
+function handleCodeClear() {
+    state.code = state.code.slice(0, -1);
+    updateCodeDisplay();
+    codeError.textContent = '';
+}
+
+function handleCodeEnter() {
+    if (state.code === state.correctCode) {
+        state.codeUnlocked = true;
+        codeError.textContent = '';
+        // تشغيل الأغنية
+        playBackgroundMusic();
+        // الانتقال للعبة
+        setTimeout(() => {
+            screens.code.classList.remove('active');
+            screens.game.classList.add('active');
+            startGameLogic();
+        }, 300);
+    } else {
+        codeError.textContent = '❌ رمز خاطئ، حاول مرة أخرى';
+        state.code = '';
+        updateCodeDisplay();
+        // هز الشاشة
+        const display = document.querySelector('.code-display');
+        display.style.animation = 'shake 0.4s ease';
+        setTimeout(() => display.style.animation = '', 500);
+    }
+}
+
+// إضافة كلاس shake في CSS
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+`;
+document.head.appendChild(shakeStyle);
 
 // ================================================================
 //  🕹️ JOYSTICK CONTROLS
@@ -219,7 +335,7 @@ function showMessage(text, duration = 4000) {
     }, 200);
 }
 
-function showFloatingText(text, x, y, duration = 4000) {
+function showFloatingText(text, x, y, duration = 5000) {
     const el = floatingText;
     el.textContent = text;
     el.style.left = x + 'px';
@@ -232,7 +348,6 @@ function showFloatingText(text, x, y, duration = 4000) {
         el.style.transform = 'translateY(-50px) scale(1.2)';
     }, duration);
 }
-
 
 // ================================================================
 //  🎨 DRAWING
@@ -427,7 +542,7 @@ function drawDoor() {
     ctx.fillStyle = `rgba(255,255,255,${0.15 + glowPulse * 0.1})`;
     ctx.font = '16px Cairo, sans-serif';
     ctx.textBaseline = 'top';
-    ctx.fillText('مش كل الأبطال بيلبسوا كاب...', cx, cy + h/2 + 20);
+
 
     for (let i = 0; i < 8; i++) {
         const angle = (i / 8) * Math.PI * 2 + time * 0.5;
@@ -531,9 +646,8 @@ function collectStar(star) {
     progressFill.style.width = `${(state.starsCollected / state.totalStars) * 100}%`;
 
     star.showAdvice = true;
-    
-    // ✅ النصيحة تظهر لمدة 5 ثواني بدل 2 ثانية
-    showFloatingText(`✨ ${star.emoji} ${star.word}: ${star.advice}`, star.x - 80, star.y - 60, 3000);
+    showFloatingText(`✨ ${star.emoji} ${star.word}: ${star.advice}`, star.x - 80, star.y - 60, 5000);
+    // showMessage(`💫 ${star.word}: ${star.advice}`, 5000); // ✅ شيلناها
 
     canvas.style.transform = 'scale(0.98)';
     setTimeout(() => canvas.style.transform = 'scale(1)', 150);
@@ -545,7 +659,6 @@ function collectStar(star) {
         }, 800);
     }
 }
-
 
 // ================================================================
 //  🚪 DOOR
@@ -613,7 +726,7 @@ function showEndScreen() {
 // ================================================================
 
 const letters = {
-    her: `"بص يا قلبي انتا صحبي واخويا وحبيبي وبابا ملكش دعوه بالعيال الوحشه دي هما مش عارفين هما بيتكلمو معا مين ولا مصاحبين مين عوزاك توريهم مين عمر بشطرتك يا روح قلبي متخليش كلام أي حد يأثر فيك الناس هتتكلم مهما عملت لكن قيمتك مش بتتحدد بكلامهم ركز في نفسك وفي مستقبلك وسيب أفعالك هي اللي ترد عليهم وأنا واثقة فيك ومتخليش حد يقلل منك أبدًا 🤍 بحبك اوي يا نور عيني"`,
+    her: `"بص يا قلبي انتا صحبي واخويا وحبيبي وبابا ملكش دعوه بالعيال الوحشه دي هما مش عارفين هما بيتكلمو معا مين ولا مصاحبين مين عوزاك توريهم مين عمر بشطرتك يا روح قلبي متخليش كلام أي حد يأثر فيك الناس هتتكلم مهما عملت لكن قيمتك مش بتتحدد بكلامهم ركز في نفسك وفي مستقبلك وسيب أفعالك هي اللي ترد عليهم وأنا واثقة فيك ومتخليش حد يقلل منك أبدًا ❤️ بحبك اوي يا نور عيني"`,
     his: `"يمكن الكلمات دي اتقالت في رسالة...
 لكن كان يستاهل تتحول لتجربة.
 عشان كل مرة تفتح الموقع ده...
@@ -691,10 +804,11 @@ function typeText(element, text, speed = 40) {
     type();
 }
 
-function startGame() {
-    screens.start.classList.remove('active');
-    screens.game.classList.add('active');
+// ================================================================
+//  🚀 START GAME LOGIC
+// ================================================================
 
+function startGameLogic() {
     resizeCanvas();
     initStars();
     initPlayer();
@@ -713,17 +827,62 @@ function startGame() {
     }
 }
 
+// ================================================================
+//  🎬 START BUTTON - يفتح شاشة الرمز
+// ================================================================
+
+function startGame() {
+    screens.start.classList.remove('active');
+    screens.code.classList.add('active');
+    state.code = '';
+    updateCodeDisplay();
+    codeError.textContent = '';
+}
+
+// ================================================================
+//  🔄 REPLAY
+// ================================================================
+
 function replayGame() {
     if (counterInterval) { clearInterval(counterInterval); counterInterval = null; }
     screens.end.classList.remove('active');
     screens.start.classList.add('active');
     letterBox.style.display = 'none';
+    stopBackgroundMusic();
     const text = 'كل واحد فينا بيعدي بأيام صعبة...\nلكن ساعات شخص واحد بيغير كل حاجة.';
     typeText(introText, text);
 }
 
 // ================================================================
-//  🎬 EVENTS
+//  🎬 EVENTS - CODE KEYPAD
+// ================================================================
+
+keyBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const num = btn.dataset.num;
+        if (num !== undefined) {
+            handleCodeInput(num);
+        }
+    });
+});
+
+keyClear.addEventListener('click', handleCodeClear);
+keyEnter.addEventListener('click', handleCodeEnter);
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+    if (!screens.code.classList.contains('active')) return;
+    if (e.key >= '0' && e.key <= '9') {
+        handleCodeInput(e.key);
+    } else if (e.key === 'Backspace') {
+        handleCodeClear();
+    } else if (e.key === 'Enter') {
+        handleCodeEnter();
+    }
+});
+
+// ================================================================
+//  🎬 EVENTS - MAIN
 // ================================================================
 
 btnStart.addEventListener('click', startGame);
@@ -736,6 +895,7 @@ btnReplay.addEventListener('click', replayGame);
 document.addEventListener('DOMContentLoaded', () => {
     createBackgroundStars();
     setupJoystick();
+    setupAudio();
     const text = 'كل واحد فينا بيعدي بأيام صعبة...\nلكن ساعات شخص واحد بيغير كل حاجة.';
     typeText(introText, text);
 });
