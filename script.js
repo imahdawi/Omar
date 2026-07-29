@@ -22,31 +22,43 @@ const letterBox = document.getElementById('letter-box');
 const btnReplay = document.getElementById('btn-replay');
 const btnCloseLetter = document.getElementById('btn-close-letter');
 
-// الجويستيك
+// ====== JOYSTICK ======
 const joystickBase = document.getElementById('joystick-base');
 const joystickThumb = document.getElementById('joystick-thumb');
-const joystickArea = document.getElementById('joystick-area');
 
-// العدادات
-const daysEl = document.getElementById('days');
-const hoursEl = document.getElementById('hours');
-const minutesEl = document.getElementById('minutes');
-const secondsEl = document.getElementById('seconds');
+// ====== COUNTERS ======
+const daysHer = document.getElementById('days-her');
+const hoursHer = document.getElementById('hours-her');
+const minutesHer = document.getElementById('minutes-her');
+const secondsHer = document.getElementById('seconds-her');
+
+const daysHis = document.getElementById('days-his');
+const hoursHis = document.getElementById('hours-his');
+const minutesHis = document.getElementById('minutes-his');
+const secondsHis = document.getElementById('seconds-his');
 
 // ====== STATE ======
 const state = {
     starsCollected: 0,
     totalStars: 5,
     gamePhase: 'collect',
-    startDate: new Date(2026, 4, 8, 0, 0, 0),
+    dateHer: new Date(2026, 4, 8, 0, 0, 0),
+    dateHis: new Date(2020, 4, 18, 0, 0, 0),
     isEnding: false,
-    collectedWords: [],
-    endScreenShown: false,
-    letterOpen: false
+    collectedWords: []
 };
 
+// ====== STAR DATA ======
 const starWords = ['ثقة', 'دعم', 'صبر', 'حب', 'أمل'];
 const starEmojis = ['💪', '🤝', '⏳', '❤️', '🌟'];
+const starAdvice = [
+    'قيمتك دايما كبيرة متثبتهاش لحد',
+    'عمرك مهتكون لوحدك احنا جمبك',
+    'اعمل اللي عليك ودايما هتلاقي نتيجة',
+    'الحب مش بس كلام لا الحب الحقيقي احترام وثقة',
+    'الأمل هو الضوء في نهاية النفق'
+];
+
 const stars = [];
 
 // ====== PLAYER ======
@@ -59,10 +71,11 @@ const player = {
     trail: []
 };
 
-// ====== JOYSTICK ======
+// ====== JOYSTICK STATE ======
 let joystickActive = false;
 let joystickX = 0;
 let joystickY = 0;
+let counterInterval = null;
 
 // ================================================================
 //  🕹️ JOYSTICK CONTROLS
@@ -71,7 +84,6 @@ let joystickY = 0;
 function setupJoystick() {
     const base = joystickBase;
     const thumb = joystickThumb;
-    const radius = base.offsetWidth / 2 - thumb.offsetWidth / 2;
 
     function handleMove(x, y) {
         const rect = base.getBoundingClientRect();
@@ -100,30 +112,22 @@ function setupJoystick() {
         joystickActive = false;
     }
 
-    // Mouse events
     base.addEventListener('mousedown', (e) => {
         e.preventDefault();
-        joystickActive = true;
         handleMove(e.clientX, e.clientY);
     });
 
     document.addEventListener('mousemove', (e) => {
-        if (joystickActive) {
-            handleMove(e.clientX, e.clientY);
-        }
+        if (joystickActive) handleMove(e.clientX, e.clientY);
     });
 
     document.addEventListener('mouseup', () => {
-        if (joystickActive) {
-            handleEnd();
-        }
+        if (joystickActive) handleEnd();
     });
 
-    // Touch events
     base.addEventListener('touchstart', (e) => {
         e.preventDefault();
         const touch = e.touches[0];
-        joystickActive = true;
         handleMove(touch.clientX, touch.clientY);
     });
 
@@ -136,9 +140,7 @@ function setupJoystick() {
     }, { passive: false });
 
     document.addEventListener('touchend', () => {
-        if (joystickActive) {
-            handleEnd();
-        }
+        if (joystickActive) handleEnd();
     });
 }
 
@@ -165,18 +167,27 @@ resizeCanvas();
 
 function initStars() {
     stars.length = 0;
-    const padding = 100;
+    const positions = [
+        { x: canvas.width * 0.08, y: canvas.height * 0.15 },
+        { x: canvas.width * 0.85, y: canvas.height * 0.12 },
+        { x: canvas.width * 0.50, y: canvas.height * 0.35 },
+        { x: canvas.width * 0.10, y: canvas.height * 0.70 },
+        { x: canvas.width * 0.88, y: canvas.height * 0.75 }
+    ];
+
     for (let i = 0; i < state.totalStars; i++) {
         stars.push({
-            x: padding + Math.random() * (canvas.width - padding * 2),
-            y: padding + Math.random() * (canvas.height - padding * 2),
+            x: positions[i].x,
+            y: positions[i].y,
             collected: false,
             word: starWords[i],
             emoji: starEmojis[i],
-            radius: 28,
+            radius: 32,
             pulse: Math.random() * Math.PI * 2,
-            scale: 0.8 + Math.random() * 0.4,
-            floatOffset: Math.random() * 100
+            scale: 0.9 + Math.random() * 0.3,
+            floatOffset: Math.random() * 100,
+            advice: starAdvice[i],
+            showAdvice: false
         });
     }
 }
@@ -196,7 +207,7 @@ function initPlayer() {
 let messageTimeout = null;
 let floatingTimeout = null;
 
-function showMessage(text, duration = 2500) {
+function showMessage(text, duration = 4000) {
     if (messageTimeout) clearTimeout(messageTimeout);
     messageBox.className = 'message-box hide';
     setTimeout(() => {
@@ -208,7 +219,7 @@ function showMessage(text, duration = 2500) {
     }, 200);
 }
 
-function showFloatingText(text, x, y) {
+function showFloatingText(text, x, y, duration = 4000) {
     const el = floatingText;
     el.textContent = text;
     el.style.left = x + 'px';
@@ -219,8 +230,9 @@ function showFloatingText(text, x, y) {
     floatingTimeout = setTimeout(() => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(-50px) scale(1.2)';
-    }, 800);
+    }, duration);
 }
+
 
 // ================================================================
 //  🎨 DRAWING
@@ -261,32 +273,39 @@ function drawStars() {
         const x = star.x;
         const y = star.y + floatY;
 
-        const glow = ctx.createRadialGradient(x, y, radius * 0.2, x, y, radius * 4);
-        glow.addColorStop(0, `rgba(255,215,0,${0.2 * pulse})`);
-        glow.addColorStop(0.5, `rgba(255,215,0,${0.06 * pulse})`);
+        const glow = ctx.createRadialGradient(x, y, radius * 0.2, x, y, radius * 5);
+        glow.addColorStop(0, `rgba(255,215,0,${0.25 * pulse})`);
+        glow.addColorStop(0.5, `rgba(255,215,0,${0.08 * pulse})`);
         glow.addColorStop(1, 'rgba(255,215,0,0)');
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(x, y, radius * 4, 0, Math.PI * 2);
+        ctx.arc(x, y, radius * 5, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.shadowColor = '#FFD700';
-        ctx.shadowBlur = 25 * pulse;
+        ctx.shadowBlur = 30 * pulse;
         ctx.fillStyle = '#FFD700';
         ctx.beginPath();
         drawStarShape(ctx, x, y, 5, radius, radius * 0.45);
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        ctx.font = `${Math.round(radius * 0.5)}px Arial`;
+        ctx.font = `${Math.round(radius * 0.55)}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(star.emoji, x, y - radius * 0.15);
 
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        ctx.font = `bold ${Math.round(radius * 0.35)}px Cairo, sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = `bold ${Math.round(radius * 0.4)}px Cairo, sans-serif`;
         ctx.textBaseline = 'top';
-        ctx.fillText(star.word, x, y + radius * 0.8);
+        ctx.fillText(star.word, x, y + radius * 0.9);
+
+        if (star.showAdvice) {
+            ctx.fillStyle = 'rgba(255,215,0,0.9)';
+            ctx.font = `bold ${Math.round(radius * 0.3)}px Cairo, sans-serif`;
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(star.advice, x, y - radius * 1.2);
+        }
     });
 }
 
@@ -428,13 +447,10 @@ function drawDoor() {
 // ================================================================
 
 function update() {
-    // التحكم بالجويستيك
     if (joystickActive && !state.isEnding) {
         const speed = 3;
-        const dx = joystickX * speed;
-        const dy = joystickY * speed;
-        player.targetX = Math.max(player.size, Math.min(canvas.width - player.size, player.x + dx));
-        player.targetY = Math.max(player.size, Math.min(canvas.height - player.size, player.y + dy));
+        player.targetX = Math.max(player.size, Math.min(canvas.width - player.size, player.x + joystickX * speed));
+        player.targetY = Math.max(player.size, Math.min(canvas.height - player.size, player.y + joystickY * speed));
         player.moving = true;
     }
 
@@ -514,8 +530,10 @@ function collectStar(star) {
     starCounter.textContent = `⭐ ${state.starsCollected} / ${state.totalStars}`;
     progressFill.style.width = `${(state.starsCollected / state.totalStars) * 100}%`;
 
-    showFloatingText(`✨ ${star.emoji} ${star.word}!`, star.x - 30, star.y - 50);
-    showMessage(`⭐ جمعت: "${star.word}"`);
+    star.showAdvice = true;
+    
+    // ✅ النصيحة تظهر لمدة 5 ثواني بدل 2 ثانية
+    showFloatingText(`✨ ${star.emoji} ${star.word}: ${star.advice}`, star.x - 80, star.y - 60, 3000);
 
     canvas.style.transform = 'scale(0.98)';
     setTimeout(() => canvas.style.transform = 'scale(1)', 150);
@@ -528,6 +546,7 @@ function collectStar(star) {
     }
 }
 
+
 // ================================================================
 //  🚪 DOOR
 // ================================================================
@@ -538,6 +557,8 @@ function checkDoorInteraction() {
     if (player.x > cx - w/2 && player.x < cx + w/2 && player.y > cy - h/2 && player.y < cy + h/2) {
         state.isEnding = true;
         showMessage('🔓 الباب يفتح...', 1500);
+        canvas.style.transform = 'scale(0.95)';
+        setTimeout(() => canvas.style.transform = 'scale(1)', 500);
         setTimeout(() => { showEndScreen(); }, 2000);
     }
 }
@@ -546,35 +567,45 @@ function checkDoorInteraction() {
 //  💌 END SCREEN
 // ================================================================
 
-let counterInterval = null;
-
 function showEndScreen() {
     screens.game.classList.remove('active');
     screens.end.classList.add('active');
 
-    // إظهار البابين
     document.getElementById('door-her').style.display = 'block';
     document.getElementById('door-his').style.display = 'block';
     letterBox.style.display = 'none';
 
-    // عداد
-    function updateCounter() {
+    function updateCounters() {
         const now = new Date();
-        const diff = now - state.startDate;
-        if (diff < 0) return;
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const secs = Math.floor((diff % (1000 * 60)) / 1000);
-        if (daysEl) daysEl.textContent = String(days).padStart(2, '0');
-        if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
-        if (minutesEl) minutesEl.textContent = String(mins).padStart(2, '0');
-        if (secondsEl) secondsEl.textContent = String(secs).padStart(2, '0');
-    }
-    updateCounter();
-    if (counterInterval) clearInterval(counterInterval);
-    counterInterval = setInterval(updateCounter, 1000);
+        
+        const diffHer = now - state.dateHer;
+        if (diffHer > 0) {
+            const days = Math.floor(diffHer / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diffHer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diffHer % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diffHer % (1000 * 60)) / 1000);
+            if (daysHer) daysHer.textContent = String(days).padStart(2, '0');
+            if (hoursHer) hoursHer.textContent = String(hours).padStart(2, '0');
+            if (minutesHer) minutesHer.textContent = String(mins).padStart(2, '0');
+            if (secondsHer) secondsHer.textContent = String(secs).padStart(2, '0');
+        }
 
+        const diffHis = now - state.dateHis;
+        if (diffHis > 0) {
+            const days = Math.floor(diffHis / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diffHis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diffHis % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diffHis % (1000 * 60)) / 1000);
+            if (daysHis) daysHis.textContent = String(days).padStart(2, '0');
+            if (hoursHis) hoursHis.textContent = String(hours).padStart(2, '0');
+            if (minutesHis) minutesHis.textContent = String(mins).padStart(2, '0');
+            if (secondsHis) secondsHis.textContent = String(secs).padStart(2, '0');
+        }
+    }
+
+    updateCounters();
+    if (counterInterval) clearInterval(counterInterval);
+    counterInterval = setInterval(updateCounters, 1000);
 }
 
 // ================================================================
@@ -603,8 +634,6 @@ function showLetter(type) {
     });
     letterText.innerHTML = html;
     letterBox.style.display = 'block';
-
-    // إخفاء البابين
     document.getElementById('door-her').style.display = 'none';
     document.getElementById('door-his').style.display = 'none';
 }

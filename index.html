@@ -51,21 +51,57 @@
         </div>
 
         <!-- ====== END SCREEN ====== -->
-        <div id="screen-end" class="screen">
-            <div class="end-content">
-                <!-- بابين جنب بعض -->
-                <div class="doors-container">
-                    <div class="door-card" id="door-her">
-                        <div class="door-icon">💌</div>
-                        <h3>رسالتها</h3>
-                        <p>اضغط لقراءة الرسالة</p>
-                    </div>
-                    <div class="door-card" id="door-his">
-                        <div class="door-icon">💙</div>
-                        <h3>رسالتك</h3>
-                        <p>اضغط لقراءة الرسالة</p>
-                    </div>
-                </div>
+<div id="screen-end" class="screen">
+    <div class="end-content">
+        
+        <!-- بابين جنب بعض -->
+        <div class="doors-container">
+            <div class="door-card" id="door-her">
+                <div class="door-icon">💌</div>
+                <h3>رسالتها</h3>
+                <p>اضغط لقراءة الرسالة</p>
+            </div>
+            <div class="door-card" id="door-his">
+                <div class="door-icon">💙</div>
+                <h3>رسالتك</h3>
+                <p>اضغط لقراءة الرسالة</p>
+            </div>
+        </div>
+
+        <!-- الرسالة -->
+        <div class="letter-box" id="letter-box" style="display:none;">
+            <div class="letter-content" id="letter-text"></div>
+            <button class="btn-close-letter" id="btn-close-letter">✕</button>
+        </div>
+
+        <!-- ✅ عداد "عمر وملوكة" (من 8/5/2026) -->
+        <div class="counter-box" style="border-color: rgba(255,182,193,0.2);">
+            <div style="font-size:0.9rem;color:#FFB6C1;">💑 عمر وملوكة</div>
+            <div class="nums" id="counter-nums-her">
+                <div class="item"><span class="num" id="days-her">0</span><span class="label">يوم</span></div>
+                <div class="item"><span class="num" id="hours-her">0</span><span class="label">ساعة</span></div>
+                <div class="item"><span class="num" id="minutes-her">0</span><span class="label">دقيقة</span></div>
+                <div class="item"><span class="num" id="seconds-her">0</span><span class="label">ثانية</span></div>
+            </div>
+            <div style="font-size:0.8rem;color:#555;margin-top:4px;">قصة حب ابتدت من هنا</div>
+        </div>
+
+        <!-- ✅ عداد "عمر وبكري الصغير" (من 18/5/2020) -->
+        <div class="counter-box" style="border-color: rgba(108,99,255,0.2); margin-top: 8px;">
+            <div style="font-size:0.9rem;color:#6C63FF;">😂 عمر وبكري الصغير</div>
+            <div class="nums" id="counter-nums-his">
+                <div class="item"><span class="num" id="days-his">0</span><span class="label">يوم</span></div>
+                <div class="item"><span class="num" id="hours-his">0</span><span class="label">ساعة</span></div>
+                <div class="item"><span class="num" id="minutes-his">0</span><span class="label">دقيقة</span></div>
+                <div class="item"><span class="num" id="seconds-his">0</span><span class="label">ثانية</span></div>
+            </div>
+            <div style="font-size:0.8rem;color:#555;margin-top:4px;">ومن هنا كانت بداية القصة</div>
+        </div>
+
+        <p class="made-by">Made with ❤️ by Mahdi Ahmed</p>
+        <button class="btn-replay" id="btn-replay">🔄 العب مرة أخرى</button>
+    </div>
+</div>
 
                 <!-- الرسالة (تظهر بعد الضغط) -->
                 <div class="letter-box" id="letter-box" style="display:none;">
